@@ -1,5 +1,6 @@
 package com.github.dverstap.munin.jmxagent;
 
+// http://munin-monitoring.org/wiki/protocol-config
 public enum GraphAttributeType {
 
     GRAPH_TITLE("graph_title"),
@@ -10,8 +11,7 @@ public enum GraphAttributeType {
     GRAPH_INFO("graph_args"),
     GRAPH_PERIOD("graph_period"),
     GRAPH_ORDER("graph_order"),
-    GRAPH_PRINTF("graph_printf")
-    ;
+    GRAPH_PRINTF("graph_printf");
 
     private final String muninName;
 

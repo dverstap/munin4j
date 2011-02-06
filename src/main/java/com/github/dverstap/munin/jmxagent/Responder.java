@@ -3,66 +3,89 @@ package com.github.dverstap.munin.jmxagent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.PrintStream;
+import java.util.Map;
 
 public class Responder {
 
     private static final Logger log = LoggerFactory.getLogger(Responder.class);
-    
+
     private final String name;
-    private final BufferedReader in;
-    private final PrintStream out;
+    private final Map<String, GraphConfig> graphConfigMap;
+    private final Map<String, Graph> graphMap;
+    private final LineReader in;
+    private final LineWriter out;
 
-    private static int value = 0;
-
-    public Responder(String name, BufferedReader in, PrintStream out) {
+    public Responder(String name, Map<String, GraphConfig> graphConfigMap, Map<String, Graph> graphMap, LineReader in, LineWriter out) {
         this.name = name;
+        this.graphConfigMap = graphConfigMap;
+        this.graphMap = graphMap;
         this.in = in;
         this.out = out;
     }
 
     public void process() throws IOException {
-        sendLine("# munin node at " + name);
+        writeLine("# munin node at " + name);
         String line;
         while ((line = readLine()) != null) {
             if (line.startsWith("list")) {
-                sendLine("ms");
-            } else if (line.equals("config ms")) {
-                sendLine("graph_title Milliseconds per second");
-                sendLine("graph_vlabel ms/s");
-                sendLine("ms.label ms");
-                sendLine("ms.type COUNTER");
-                sendLine(".");
-            } else if (line.equals("fetch ms")) {
-                value++;
-                //sendLine("hello.value " + value);
-                long v = System.currentTimeMillis();
-                sendLine("ms.value " + v);
-                sendLine(".");
+                list();
+            } else if (line.startsWith("config ")) {
+                String graphName = line.substring("config ".length());
+                config(graphName);
+            } else if (line.startsWith("fetch ")) {
+                String graphName = line.substring("fetch ".length());
+                fetch(graphName);
 // TODO handle "cap multigraph"
 //            } else if (line.startsWith("cap")) {
 //
             } else {
                 log.warn("Received unknown command: " + line);
                 // TODO print exact supported commands
-                sendLine("# Unknown command. Try list, nodes, config, fetch, version or quit");
+                writeLine("# Unknown command. Try list, nodes, config, fetch, version or quit");
             }
         }
     }
-    
-    private String readLine() throws IOException {
-        String line = in.readLine();
-        if (line != null && log.isTraceEnabled()) {
-            log.trace("Read line: " + line);
+
+
+    private void list() {
+        StringBuilder b = new StringBuilder();
+        for (GraphConfig graphConfig : graphConfigMap.values()) {
+            b.append(graphConfig.getName())
+                    .append(" ");
         }
-        return line;
+        writeLine(b.toString());
     }
 
-    private void sendLine(String line) {
-        log.trace("Send line: " + line);
-        out.println(line);
+    private void config(String graphName) {
+        GraphConfig config = graphConfigMap.get(graphName);
+        if (config != null) {
+            config.send(out);
+        } else {
+            writeLine("# Unknown graph " + graphName);
+        }
+
     }
-    
+
+    private void fetch(String graphName) {
+        Graph graph = graphMap.get(graphName);
+        if (graph != null) {
+            Map<FieldConfig, Object> values = graph.fetchValues();
+            for (Map.Entry<FieldConfig, Object> entry : values.entrySet()) {
+                writeLine(entry.getKey().getName() + ".value " + entry.getValue());
+            }
+            writeLine(".");
+        } else {
+            writeLine("# Unknown graph " + graphName);
+        }
+    }
+
+    private String readLine() throws IOException {
+        return in.readLine();
+    }
+
+    private void writeLine(String line) {
+        out.writeLine(line);
+    }
+
 }

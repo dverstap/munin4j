@@ -1,11 +1,11 @@
 package com.github.dverstap.munin.jmxagent;
 
+// http://munin-monitoring.org/wiki/protocol-config
 public enum FieldAttributeType {
 
-    NAME("name"),
     LABEL("label"),
-    INFO("info"),
     TYPE("type"),
+    INFO("info"),
     CDEF("cdef");
 
     private final String muninName;
