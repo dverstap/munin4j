@@ -1,21 +1,24 @@
 package com.github.dverstap.munin.jmxagent.framework;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class GraphConfigBuilder {
 
     private final String name;
-    private final Map<GraphAttributeType, Object> attributeMap = new LinkedHashMap<GraphAttributeType, java.lang.Object>();
-    private final Map<String, FieldConfig> fieldConfigMap = new LinkedHashMap<String, FieldConfig>();
+    private final Map<GraphAttributeType, Object> attributeMap = new LinkedHashMap<GraphAttributeType, Object>();
+    private final List<FieldConfig> fieldConfigs = new ArrayList<FieldConfig>();
 
     public GraphConfigBuilder(String name) {
         this.name = name;
     }
 
     public GraphConfig build() {
-        return new GraphConfig(name, attributeMap, fieldConfigMap);
+        return new GraphConfig(name, attributeMap, fieldConfigs);
     }
 
     private GraphConfigBuilder put(GraphAttributeType key, Object value) {
@@ -24,16 +27,12 @@ public class GraphConfigBuilder {
     }
 
     public GraphConfigBuilder fields(FieldConfig... fields) {
-        for (FieldConfig field : fields) {
-            fieldConfigMap.put(field.getName(), field);
-        }
+        fieldConfigs.addAll(Arrays.asList(fields));
         return this;
     }
 
     public GraphConfigBuilder fields(Collection<FieldConfig> fields) {
-        for (FieldConfig field : fields) {
-            fieldConfigMap.put(field.getName(), field);
-        }
+        fieldConfigs.addAll(fields);
         return this;
     }
 

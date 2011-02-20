@@ -4,7 +4,7 @@ public enum MemoryPoolField {
 
     USAGE("Usage", "getUsage"),
     PEAK_USAGE("Peak Usage", "getPeakUsage"),
-    COLLECTION_USAGE("Post-Collection Usage", "getCollectionUsage");
+    COLLECTION_USAGE("Collection Usage", "getCollectionUsage");
 
     private final String label;
     private final String methodName;

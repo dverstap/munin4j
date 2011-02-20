@@ -3,6 +3,7 @@ package com.github.dverstap.munin.jmxagent.jdk;
 import com.github.dverstap.munin.jmxagent.framework.Graph;
 import com.github.dverstap.munin.jmxagent.framework.Server;
 
+import java.lang.management.MemoryPoolMXBean;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -21,15 +22,17 @@ public class Main {
                 new LiveThreadsGraph(),
                 new StartedThreadsGraph(),
                 new GarbageCollectionCountGraph(),
-                new GarbageCollectionTimeGraph(),
-                new MemoryPoolUsageGraph(),
-                new MemoryPoolPostGCGraph()
+                new GarbageCollectionTimeGraph()
         ));
 
-        for (Map<MemoryPoolField, DetailedMemoryPoolGraph> map : DetailedMemoryPoolGraph.build().values()) {
+        Map<MemoryPoolMXBean, Map<MemoryPoolField, DetailedMemoryPoolGraph>> memoryPoolMap = DetailedMemoryPoolGraph.build();
+        for (Map<MemoryPoolField, DetailedMemoryPoolGraph> map : memoryPoolMap.values()) {
             for (DetailedMemoryPoolGraph graph : map.values()) {
                 graphs.add(graph);
             }
+        }
+        for (MemoryPoolField memoryPoolField : MemoryPoolField.values()) {
+            graphs.add(new MemoryPoolOverviewGraph(memoryPoolMap, memoryPoolField, MemoryUsageField.USED));
         }
 
 //        for (GarbageCollectorMXBean bean : ManagementFactory.getGarbageCollectorMXBeans()) {
