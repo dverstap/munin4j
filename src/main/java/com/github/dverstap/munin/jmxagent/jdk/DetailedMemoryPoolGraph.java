@@ -32,8 +32,8 @@ public class DetailedMemoryPoolGraph implements Graph {
     }
 
     private FieldConfig buildField(MemoryUsageField field) {
-        return new FieldConfigBuilder(GraphUtil.buildName(buildGraphName() + "_" + field.name()))
-                .label(bean.getName() + ": " + memoryPoolField.getLabel() + ": " + field.getLabel())
+        return new FieldConfigBuilder(GraphUtil.buildName(field.name()))
+                .label(field.getLabel())
                 .type(GAUGE)
                 .build();
     }

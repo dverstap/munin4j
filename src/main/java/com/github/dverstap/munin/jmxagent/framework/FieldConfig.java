@@ -1,20 +1,28 @@
 package com.github.dverstap.munin.jmxagent.framework;
 
+import java.util.Collections;
 import java.util.Map;
 
+// TODO rename to DataSourceConfig
 public class FieldConfig {
 
     private final String name;
+    private final FieldConfig borrowedFieldConfig;
     private final Map<FieldAttributeType, Object> attributeMap;
-    private GraphConfig originalGraphConfig;
+    private GraphConfig graphConfig;
 
-    public FieldConfig(String name, Map<FieldAttributeType, Object> attributeMap) {
+    public FieldConfig(String name, FieldConfig borrowedFieldConfig, Map<FieldAttributeType, Object> attributeMap) {
         this.name = name;
-        this.attributeMap = attributeMap;
+        this.borrowedFieldConfig = borrowedFieldConfig;
+        this.attributeMap = Collections.unmodifiableMap(attributeMap);
     }
 
     public String getName() {
         return name;
+    }
+
+    public FieldConfig getBorrowedFieldConfig() {
+        return borrowedFieldConfig;
     }
 
     public void send(LineWriter out) {
@@ -23,14 +31,18 @@ public class FieldConfig {
         }
     }
 
-    public GraphConfig getOriginalGraphConfig() {
-        return originalGraphConfig;
+    public GraphConfig getGraphConfig() {
+        return graphConfig;
     }
 
-    void setOriginalGraphConfig(GraphConfig originalGraphConfig) {
-        if (this.originalGraphConfig != null) {
-            throw new IllegalStateException("originalGraphConfig cannot be modified once it is set.");
+    public Map<FieldAttributeType, Object> getAttributeMap() {
+        return attributeMap;
+    }
+
+    void setGraphConfig(GraphConfig graphConfig) {
+        if (this.graphConfig != null) {
+            throw new IllegalStateException("graphConfig cannot be modified once it is set.");
         }
-        this.originalGraphConfig = originalGraphConfig;
+        this.graphConfig = graphConfig;
     }
 }

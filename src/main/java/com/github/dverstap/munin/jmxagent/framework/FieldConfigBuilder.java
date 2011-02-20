@@ -6,14 +6,37 @@ import java.util.Map;
 public class FieldConfigBuilder {
 
     private final String name;
-    private final Map<FieldAttributeType, Object> attributeMap = new LinkedHashMap<FieldAttributeType, Object>();
+    private final FieldConfig borrowedFieldConfig;
+    private final Map<FieldAttributeType, Object> attributeMap;
 
     public FieldConfigBuilder(String name) {
+        this(name, null, new LinkedHashMap<FieldAttributeType, Object>());
+    }
+
+    public FieldConfigBuilder(FieldConfig borrowedFieldConfig) {
+        this(borrowedFieldConfig.getName(), borrowedFieldConfig, new LinkedHashMap<FieldAttributeType, Object>(borrowedFieldConfig.getAttributeMap()));
+    }
+
+    public FieldConfigBuilder(String name, FieldConfig borrowedFieldConfig) {
+        this(name, borrowedFieldConfig, new LinkedHashMap<FieldAttributeType, Object>(borrowedFieldConfig.getAttributeMap()));
+    }
+
+    public FieldConfigBuilder(String name, FieldConfig borrowedFieldConfig, Map<FieldAttributeType, Object> attributeMap) {
         this.name = name;
+        this.borrowedFieldConfig = borrowedFieldConfig;
+        this.attributeMap = attributeMap;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public FieldConfig getBorrowedFieldConfig() {
+        return borrowedFieldConfig;
     }
 
     public FieldConfig build() {
-        return new FieldConfig(name, attributeMap);
+        return new FieldConfig(name, borrowedFieldConfig, attributeMap);
     }
 
     private FieldConfigBuilder put(FieldAttributeType key, Object value) {

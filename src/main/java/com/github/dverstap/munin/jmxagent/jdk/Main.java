@@ -32,7 +32,9 @@ public class Main {
             }
         }
         for (MemoryPoolField memoryPoolField : MemoryPoolField.values()) {
-            graphs.add(new MemoryPoolOverviewGraph(memoryPoolMap, memoryPoolField, MemoryUsageField.USED));
+            for (MemoryUsageField memoryUsageField : MemoryUsageField.values()) {
+                graphs.add(new MemoryPoolOverviewGraph(memoryPoolMap, memoryPoolField, memoryUsageField));
+            }
         }
 
 //        for (GarbageCollectorMXBean bean : ManagementFactory.getGarbageCollectorMXBeans()) {

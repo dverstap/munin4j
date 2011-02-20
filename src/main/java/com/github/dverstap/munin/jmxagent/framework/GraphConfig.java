@@ -8,16 +8,15 @@ public class GraphConfig {
 
     private final String name;
     private final Map<GraphAttributeType, Object> attributeMap;
-    private final List<FieldConfig> fieldConfigs;
+    private final List<FieldConfig> fieldConfigs; // TODO make this a Map again and check uniqueness on put
 
     public GraphConfig(String name, Map<GraphAttributeType, Object> attributeMap, List<FieldConfig> fieldConfigs) {
         this.name = name;
 
         boolean hasBorrowedDataSources = false;
         for (FieldConfig field : fieldConfigs) {
-            if (field.getOriginalGraphConfig() == null) {
-                field.setOriginalGraphConfig(this);
-            } else {
+            field.setGraphConfig(this);
+            if (field.getBorrowedFieldConfig() != null) {
                 hasBorrowedDataSources = true;
             }
         }
@@ -32,14 +31,14 @@ public class GraphConfig {
     private String buildGraphOrder() {
         StringBuilder result = new StringBuilder();
         for (FieldConfig fieldConfig : fieldConfigs) {
-            if (fieldConfig.getOriginalGraphConfig() == this) {
+            if (fieldConfig.getBorrowedFieldConfig() == null) {
                 result.append(fieldConfig.getName());
             } else {
                 result.append(fieldConfig.getName())
                         .append("=")
-                        .append(fieldConfig.getOriginalGraphConfig().getName())
+                        .append(fieldConfig.getBorrowedFieldConfig().getGraphConfig().getName())
                         .append(".")
-                        .append(fieldConfig.getName());
+                        .append(fieldConfig.getBorrowedFieldConfig().getName());
             }
             result.append(" ");
         }
@@ -55,9 +54,7 @@ public class GraphConfig {
             out.writeLine(entry.getKey().getMuninName() + " " + entry.getValue());
         }
         for (FieldConfig fieldConfig : fieldConfigs) {
-            if (fieldConfig.getOriginalGraphConfig() == this) {
-                fieldConfig.send(out);
-            }
+            fieldConfig.send(out);
         }
         out.writeLine(".");
     }
