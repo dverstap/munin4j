@@ -1,0 +1,59 @@
+package com.github.dverstap.munin.jmxagent.framework;
+
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+public class GraphConfigBuilder {
+
+    private final String name;
+    private final Map<GraphAttributeType, Object> attributeMap = new LinkedHashMap<GraphAttributeType, java.lang.Object>();
+    private final Map<String, FieldConfig> fieldConfigMap = new LinkedHashMap<String, FieldConfig>();
+
+    public GraphConfigBuilder(String name) {
+        this.name = name;
+    }
+
+    public GraphConfig build() {
+        return new GraphConfig(name, attributeMap, fieldConfigMap);
+    }
+
+    private GraphConfigBuilder put(GraphAttributeType key, Object value) {
+        attributeMap.put(key, value);
+        return this;
+    }
+
+    public GraphConfigBuilder fields(FieldConfig... fields) {
+        for (FieldConfig field : fields) {
+            fieldConfigMap.put(field.getName(), field);
+        }
+        return this;
+    }
+
+    public GraphConfigBuilder fields(Collection<FieldConfig> fields) {
+        for (FieldConfig field : fields) {
+            fieldConfigMap.put(field.getName(), field);
+        }
+        return this;
+    }
+
+    public GraphConfigBuilder title(String title) {
+        return put(GraphAttributeType.GRAPH_TITLE, title);
+    }
+
+    public GraphConfigBuilder vLabel(String vLabel) {
+        return put(GraphAttributeType.GRAPH_VLABEL, vLabel);
+    }
+    public GraphConfigBuilder category(String category) {
+        return put(GraphAttributeType.GRAPH_CATEGORY, category);
+    }
+
+    public GraphConfigBuilder info(String info) {
+        return put(GraphAttributeType.GRAPH_INFO, info);
+    }
+
+    public GraphConfigBuilder args(String args) {
+        return put(GraphAttributeType.GRAPH_ARGS, args);
+    }
+
+}

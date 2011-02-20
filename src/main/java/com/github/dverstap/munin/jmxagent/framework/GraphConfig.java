@@ -1,4 +1,4 @@
-package com.github.dverstap.munin.jmxagent;
+package com.github.dverstap.munin.jmxagent.framework;
 
 import java.util.Collections;
 import java.util.Map;

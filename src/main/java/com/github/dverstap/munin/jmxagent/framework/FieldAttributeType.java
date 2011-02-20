@@ -1,4 +1,4 @@
-package com.github.dverstap.munin.jmxagent;
+package com.github.dverstap.munin.jmxagent.framework;
 
 // http://munin-monitoring.org/wiki/protocol-config
 public enum FieldAttributeType {
@@ -6,7 +6,8 @@ public enum FieldAttributeType {
     LABEL("label"),
     TYPE("type"),
     INFO("info"),
-    CDEF("cdef");
+    CDEF("cdef"),
+    DRAW("draw");
 
     private final String muninName;
 

@@ -1,4 +1,4 @@
-package com.github.dverstap.munin.jmxagent;
+package com.github.dverstap.munin.jmxagent.framework;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

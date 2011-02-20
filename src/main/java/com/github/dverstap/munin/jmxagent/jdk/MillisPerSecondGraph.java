@@ -1,4 +1,11 @@
-package com.github.dverstap.munin.jmxagent;
+package com.github.dverstap.munin.jmxagent.jdk;
+
+import com.github.dverstap.munin.jmxagent.framework.FieldConfig;
+import com.github.dverstap.munin.jmxagent.framework.FieldConfigBuilder;
+import com.github.dverstap.munin.jmxagent.framework.FieldType;
+import com.github.dverstap.munin.jmxagent.framework.Graph;
+import com.github.dverstap.munin.jmxagent.framework.GraphConfig;
+import com.github.dverstap.munin.jmxagent.framework.GraphConfigBuilder;
 
 import java.util.Collections;
 import java.util.Map;

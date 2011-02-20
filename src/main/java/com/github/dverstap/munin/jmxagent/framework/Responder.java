@@ -1,4 +1,4 @@
-package com.github.dverstap.munin.jmxagent;
+package com.github.dverstap.munin.jmxagent.framework;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,12 +71,20 @@ public class Responder {
         Graph graph = graphMap.get(graphName);
         if (graph != null) {
             Map<FieldConfig, Object> values = graph.fetchValues();
+            validate(values);
             for (Map.Entry<FieldConfig, Object> entry : values.entrySet()) {
                 writeLine(entry.getKey().getName() + ".value " + entry.getValue());
             }
             writeLine(".");
         } else {
             writeLine("# Unknown graph " + graphName);
+        }
+    }
+
+    private void validate(Map<FieldConfig, Object> values) {
+        for (Map.Entry<FieldConfig, Object> entry : values.entrySet()) {
+            FieldConfig fieldConfig = entry.getKey();
+            // TODO counter/derive must always return integer
         }
     }
 
