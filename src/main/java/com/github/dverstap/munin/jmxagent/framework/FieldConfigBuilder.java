@@ -33,4 +33,12 @@ public class FieldConfigBuilder {
         return put(FieldAttributeType.DRAW, draw);
     }
 
+    public FieldConfigBuilder min(Number n) {
+        return put(FieldAttributeType.MIN, n);
+    }
+
+    public FieldConfigBuilder max(Number n) {
+        return put(FieldAttributeType.MAX, n);
+    }
+
 }

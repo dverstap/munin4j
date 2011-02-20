@@ -16,8 +16,9 @@ public class MillisPerSecondGraph implements Graph {
 
     public MillisPerSecondGraph() {
         millisPerSecond = new FieldConfigBuilder("ms")
-                .type(FieldType.COUNTER)
+                .type(FieldType.DERIVE)
                 .label("ms")
+                .min(0L)
                 .build();
     }
 

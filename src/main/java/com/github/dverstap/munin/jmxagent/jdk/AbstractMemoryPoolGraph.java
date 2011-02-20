@@ -39,7 +39,7 @@ public abstract class AbstractMemoryPoolGraph implements Graph {
         return new GraphConfigBuilder(("memorypool_" + postfix).toLowerCase())
                 .title("Memory Pool " + postfix)
                 .vLabel("bytes")
-                .category("Memory")
+                .category("Memory Pool Overviews")
                 .args("--base 1024 -l 0")
                 .info("As reported by the <a href='http://download.oracle.com/javase/1.5.0/docs/api/java/lang/management/MemoryPoolMXBean.html'>" + memoryPoolMap.size() + " MXBeans in the " + ManagementFactory.MEMORY_POOL_MXBEAN_DOMAIN_TYPE + " domain</a>.")
                 .fields(memoryPoolMap.keySet())

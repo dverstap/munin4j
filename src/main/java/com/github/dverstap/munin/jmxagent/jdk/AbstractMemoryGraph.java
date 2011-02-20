@@ -47,7 +47,7 @@ public abstract class AbstractMemoryGraph implements Graph {
         return new GraphConfigBuilder(name)
                 .title(title)
                 .vLabel("bytes")
-                .category("Memory")
+                .category("Memory Totals")
                 .args("--base 1024 -l 0")
                 .info("As reported by <a href='http://download.oracle.com/javase/1.5.0/docs/api/java/lang/management/MemoryMXBean.html'>" + ManagementFactory.MEMORY_MXBEAN_NAME + "</a>")
                 .fields(init, used, committed, max)

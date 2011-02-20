@@ -9,7 +9,7 @@ public class GarbageCollectionCountGraph extends AbstractGarbageCollectionGraph 
     }
 
     @Override
-    protected Object getDataPoint(GarbageCollectorMXBean bean) {
+    protected Long getDataPoint(GarbageCollectorMXBean bean) {
         return bean.getCollectionCount();
     }
 

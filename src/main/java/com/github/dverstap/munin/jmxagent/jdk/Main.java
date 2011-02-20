@@ -3,8 +3,10 @@ package com.github.dverstap.munin.jmxagent.jdk;
 import com.github.dverstap.munin.jmxagent.framework.Graph;
 import com.github.dverstap.munin.jmxagent.framework.Server;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class Main {
 
@@ -12,7 +14,7 @@ public class Main {
 
         new Thread(new ThreadStarter()).start();
 
-        List<Graph> graphs = Arrays.asList(
+        List<Graph> graphs = new ArrayList<Graph>(Arrays.asList(
                 new MillisPerSecondGraph(),
                 new HeapMemoryGraph(),
                 new NonHeapMemoryGraph(),
@@ -22,7 +24,13 @@ public class Main {
                 new GarbageCollectionTimeGraph(),
                 new MemoryPoolUsageGraph(),
                 new MemoryPoolPostGCGraph()
-        );
+        ));
+
+        for (Map<MemoryPoolField, DetailedMemoryPoolGraph> map : DetailedMemoryPoolGraph.build().values()) {
+            for (DetailedMemoryPoolGraph graph : map.values()) {
+                graphs.add(graph);
+            }
+        }
 
 //        for (GarbageCollectorMXBean bean : ManagementFactory.getGarbageCollectorMXBeans()) {
 //            graphs.add(new AbstractGarbageCollectionGraph(bean));

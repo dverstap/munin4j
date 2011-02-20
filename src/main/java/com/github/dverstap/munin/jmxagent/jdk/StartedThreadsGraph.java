@@ -11,7 +11,7 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 import java.util.Map;
 
-import static com.github.dverstap.munin.jmxagent.framework.FieldType.COUNTER;
+import static com.github.dverstap.munin.jmxagent.framework.FieldType.DERIVE;
 
 public class StartedThreadsGraph implements Graph {
 
@@ -20,7 +20,8 @@ public class StartedThreadsGraph implements Graph {
     public StartedThreadsGraph() {
         totalStartedThreadsCount = new FieldConfigBuilder("total_started_threads_count")
                 .label("Total Started Threads Count")
-                .type(COUNTER)
+                .type(DERIVE)
+                .min(0L)
                 .build();
     }
 

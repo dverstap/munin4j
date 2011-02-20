@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static com.github.dverstap.munin.jmxagent.framework.FieldType.COUNTER;
+import static com.github.dverstap.munin.jmxagent.framework.FieldType.DERIVE;
 
 public abstract class AbstractGarbageCollectionGraph implements Graph {
 
@@ -36,7 +36,8 @@ public abstract class AbstractGarbageCollectionGraph implements Graph {
     private FieldConfig field(GarbageCollectorMXBean bean) {
         return new FieldConfigBuilder(GraphUtil.buildName(prefix + "_" + bean.getName() + "_" + postfix))
                 .label(bean.getName())
-                .type(COUNTER)
+                .type(DERIVE)
+                .min(0L)
                 .build();
     }
 
@@ -46,21 +47,21 @@ public abstract class AbstractGarbageCollectionGraph implements Graph {
         return new GraphConfigBuilder((prefix + "_" + postfix).toLowerCase())
                 .title("Garbage Collection " + postfix)
                 .vLabel(vLabel)
-                .category("Memory")
+                .category("Garbage Collection")
                 .info("As reported by the <a href='http://download.oracle.com/javase/1.5.0/docs/api/java/lang/management/GarbageCollectorMXBean.html'>" + garbageCollectorMap.size() + " MXBeans in the " + ManagementFactory.GARBAGE_COLLECTOR_MXBEAN_DOMAIN_TYPE + " domain</a>.")
                 .fields(garbageCollectorMap.keySet())
                 .build();
     }
 
     @Override
-    public Map<FieldConfig, Object> fetchValues() {
-        Map<FieldConfig, Object> map = new LinkedHashMap<FieldConfig, Object>();
+    public Map<FieldConfig, Long> fetchValues() {
+        Map<FieldConfig, Long> map = new LinkedHashMap<FieldConfig, Long>();
         for (Map.Entry<FieldConfig, GarbageCollectorMXBean> entry : garbageCollectorMap.entrySet()) {
             map.put(entry.getKey(), getDataPoint(entry.getValue()));
         }
         return map;
     }
 
-    protected abstract Object getDataPoint(GarbageCollectorMXBean bean);
+    protected abstract Long getDataPoint(GarbageCollectorMXBean bean);
 
 }

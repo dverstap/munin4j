@@ -7,7 +7,9 @@ public enum FieldAttributeType {
     TYPE("type"),
     INFO("info"),
     CDEF("cdef"),
-    DRAW("draw");
+    DRAW("draw"),
+    MIN("min"),
+    MAX("max");
 
     private final String muninName;
 

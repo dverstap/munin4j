@@ -6,6 +6,6 @@ public interface Graph {
 
     GraphConfig buildConfig();
 
-    Map<FieldConfig, Object> fetchValues();
+    Map<FieldConfig, ?> fetchValues();
 
 }

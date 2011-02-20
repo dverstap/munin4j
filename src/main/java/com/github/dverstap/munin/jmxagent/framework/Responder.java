@@ -70,9 +70,9 @@ public class Responder {
     private void fetch(String graphName) {
         Graph graph = graphMap.get(graphName);
         if (graph != null) {
-            Map<FieldConfig, Object> values = graph.fetchValues();
+            Map<FieldConfig, ?> values = graph.fetchValues();
             validate(values);
-            for (Map.Entry<FieldConfig, Object> entry : values.entrySet()) {
+            for (Map.Entry<FieldConfig, ?> entry : values.entrySet()) {
                 writeLine(entry.getKey().getName() + ".value " + entry.getValue());
             }
             writeLine(".");
@@ -81,8 +81,8 @@ public class Responder {
         }
     }
 
-    private void validate(Map<FieldConfig, Object> values) {
-        for (Map.Entry<FieldConfig, Object> entry : values.entrySet()) {
+    private void validate(Map<FieldConfig, ?> values) {
+        for (Map.Entry<FieldConfig, ?> entry : values.entrySet()) {
             FieldConfig fieldConfig = entry.getKey();
             // TODO counter/derive must always return integer
         }
