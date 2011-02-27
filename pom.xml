@@ -6,6 +6,7 @@
     <artifactId>munin4j</artifactId>
     <packaging>jar</packaging>
     <version>0.1-SNAPSHOT</version>
+    <name>munin4j</name>
 
     <licenses>
         <license>
@@ -14,6 +15,20 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+
+    <scm>
+        <connection>scm:git:git@github.com:dverstap/munin4j.git</connection>
+        <developerConnection>scm:git:git@github.com:dverstap/munin4j.git</developerConnection>
+        <url>scm:git:git@github.com:dverstap/munin4j.git</url>
+    </scm>
+
+    <distributionManagement>
+        <repository>
+            <id>dverstap-github-releases</id>
+            <name>Davy Verstappen's release maven repository at github.com</name>
+            <url>https://github.com/dverstap/maven-repo/maven2/releases</url>
+        </repository>
+    </distributionManagement>
 
     <dependencies>
         <dependency>
@@ -47,14 +62,17 @@
 
     <build>
         <plugins>
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
                 <configuration>
                     <source>1.6</source>
                     <target>1.6</target>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>com.mycila.maven-license-plugin</groupId>
                 <artifactId>maven-license-plugin</artifactId>
@@ -75,6 +93,21 @@
                 </executions>
             </plugin>
 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.5</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.1</version>
+                <configuration>
+                    <arguments>-DaltDeploymentRepository="${altDeploymentRepository}"</arguments>
+                </configuration>
+            </plugin>
+            
         </plugins>
     </build>
 </project>
