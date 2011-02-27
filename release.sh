@@ -7,6 +7,8 @@ set -e
 
 mvn --batch-mode release:prepare
 
+GIT_TAG=`grep scm.tag release.properties | cut -d'=' -f2`
+
 # the release build will actually run in target/checkout,
 # so let's clone the maven repo at target/checkout/../maven-repo :
 cd target
@@ -17,7 +19,7 @@ mvn -DaltDeploymentRepository=dverstap-github-releases::default::file:../maven-r
 
 cd target/maven-repo
 git add .
-git commit -a -m "New releases"
+git commit -a -m "New release: $GIT_TAG"
 git push origin master
 cd ../..
 
