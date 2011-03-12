@@ -22,44 +22,40 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.github.dverstap.munin4j.core;
+package com.github.dverstap.munin4j.jboss;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.github.dverstap.munin4j.core.Graph;
+import com.github.dverstap.munin4j.core.GraphFinder;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
-import java.net.Socket;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
-public class LineSocket implements LineReader, LineWriter {
+public class JBossManagedConnectionPoolGraphFinder implements GraphFinder {
 
-    private static final Logger log = LoggerFactory.getLogger(LineSocket.class);
+    private final MBeanServer mBeanServer;
 
-    private final BufferedReader in;
-    private final PrintStream out;
-
-    public LineSocket(Socket socket) throws IOException {
-        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        out = new PrintStream(socket.getOutputStream());
+    public JBossManagedConnectionPoolGraphFinder(MBeanServer mBeanServer) {
+        this.mBeanServer = mBeanServer;
     }
 
-    @Override
-    public void writeLine(String line) {
-        if (log.isTraceEnabled()) {
-            log.trace("Send line: " + line);
-        }
-        out.println(line);
-    }
 
     @Override
-    public String readLine() throws IOException {
-        String line = in.readLine();
-        if (line != null && log.isTraceEnabled()) {
-            log.trace("Read line: " + line);
+    public List<Graph> find() {
+        List<Graph> result = new ArrayList<Graph>();
+        try {
+            Set<ObjectName> objectNames = mBeanServer.queryNames(new ObjectName("jboss.jca:service=ManagedConnectionPool,*"), null);
+            for (ObjectName objectName : objectNames) {
+                result.add(new JBossManagedConnectionPoolGraph(mBeanServer, objectName));
+                result.add(new JBossHistoricalManagedConnectionPoolGraph(mBeanServer, objectName));
+            }
+        } catch (MalformedObjectNameException e) {
+            throw new RuntimeException(e); // TODO design better exception strategy
         }
-        return line;
+        return result;
     }
 
 }

@@ -22,28 +22,21 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.github.dverstap.munin4j.core;
+package com.github.dverstap.munin4j.jboss;
 
-// http://munin-monitoring.org/wiki/protocol-config
-public enum FieldAttributeType {
+import org.jboss.system.ServiceMBean;
 
-    LABEL("label"),
-    TYPE("type"),
-    INFO("info"),
-    CDEF("cdef"),
-    DRAW("draw"),
-    MIN("min"),
-    MAX("max"),
-    NEGATIVE("negative"),
-    GRAPH("graph");
+public interface MuninServiceMBean extends ServiceMBean {
+    
+    String getBindAddress();
 
-    private final String muninName;
+    void setBindAddress(String bindAddress);
 
-    FieldAttributeType(String muninName) {
-        this.muninName = muninName;
-    }
+    int getBindPort();
 
-    public String getMuninName() {
-        return muninName;
-    }
+    void setBindPort(int bindPort);
+
+    String getHostName();
+
+    void setHostName(String hostName);
 }

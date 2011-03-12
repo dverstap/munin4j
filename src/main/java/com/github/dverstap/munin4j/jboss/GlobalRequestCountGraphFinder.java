@@ -22,61 +22,41 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.github.dverstap.munin4j.jdk;
+package com.github.dverstap.munin4j.jboss;
 
 import com.github.dverstap.munin4j.core.Graph;
 import com.github.dverstap.munin4j.core.GraphFinder;
-import com.github.dverstap.munin4j.core.Server;
-import com.github.dverstap.munin4j.core.SingleGraphFinder;
 
-import java.io.IOException;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
-public class Main {
+public class GlobalRequestCountGraphFinder implements GraphFinder {
 
-    public static void main(String[] args) throws IOException {
+    private final MBeanServer mBeanServer;
 
-        new Thread(new ThreadStarter()).start();
-
-
-        List<GraphFinder> graphFinders = new ArrayList<GraphFinder>();
-        graphFinders.add(new SingleGraphFinder() {
-            @Override
-            protected Graph create() {
-                return new MillisPerSecondGraph();
-            }
-        });
-
-        graphFinders.add(new JdkGraphFinder());
-        Server server = new Server("myjava", graphFinders);
-        server.start();
-        server.run();
+    public GlobalRequestCountGraphFinder(MBeanServer mBeanServer) {
+        this.mBeanServer = mBeanServer;
     }
 
-}
-
-class ThreadStarter implements Runnable {
 
     @Override
-    public void run() {
-        for (; ;) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                // ignored
+    public List<Graph> find() {
+        List<Graph> result = new ArrayList<Graph>();
+        try {
+            Set<ObjectName> objectNames = mBeanServer.queryNames(new ObjectName("jboss.web:type=GlobalRequestProcessor,*"), null);
+            for (ObjectName objectName : objectNames) {
+                result.add(new GlobalRequestCountRequestsGraph(mBeanServer, objectName));
+                result.add(new GlobalRequestCountProcessingTimeGraph(mBeanServer, objectName));
+                result.add(new GlobalRequestCountTrafficGraph(mBeanServer, objectName));
             }
-            new Thread() {
-
-                @Override
-                public void run() {
-                    for (int i = 0; i < 100; i++) {
-                        byte[] ints = new byte[1024 * 1024];
-                    }
-                    //System.out.println("ALLOCATED MEM");
-                }
-
-            }.start();
+        } catch (MalformedObjectNameException e) {
+            throw new RuntimeException(e); // TODO design better exception strategy
         }
+        return result;
     }
+
 }

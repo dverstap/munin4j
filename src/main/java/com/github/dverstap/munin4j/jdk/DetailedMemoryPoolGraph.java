@@ -75,7 +75,7 @@ public class DetailedMemoryPoolGraph implements Graph {
         return new GraphConfigBuilder(buildGraphName())
                 .title(bean.getName() + ": " + memoryPoolField.getLabel())
                 .vLabel("bytes")
-                .category("Memory Pool: " + bean.getName())
+                .category("JDK Memory Pool: " + bean.getName())
                 .args("--base 1024 -l 0")
                 .info("As reported by <a href='http://download.oracle.com/javase/1.5.0/docs/api/java/lang/management/MemoryPoolMXBean.html\\#" + memoryPoolField.getMethodName() + "()'>MemoryPoolMXBean." + memoryPoolField.getMethodName() + "()</a>.")
                 .fields(fieldConfigMap.values())

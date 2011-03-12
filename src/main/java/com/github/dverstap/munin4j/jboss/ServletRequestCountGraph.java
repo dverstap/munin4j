@@ -22,28 +22,19 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.github.dverstap.munin4j.core;
+package com.github.dverstap.munin4j.jboss;
 
-// http://munin-monitoring.org/wiki/protocol-config
-public enum FieldAttributeType {
+import com.github.dverstap.munin4j.jmx.SimpleMBeanGraph;
 
-    LABEL("label"),
-    TYPE("type"),
-    INFO("info"),
-    CDEF("cdef"),
-    DRAW("draw"),
-    MIN("min"),
-    MAX("max"),
-    NEGATIVE("negative"),
-    GRAPH("graph");
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 
-    private final String muninName;
-
-    FieldAttributeType(String muninName) {
-        this.muninName = muninName;
-    }
-
-    public String getMuninName() {
-        return muninName;
+public class ServletRequestCountGraph extends SimpleMBeanGraph {
+    public ServletRequestCountGraph(MBeanServer mBeanServer, ObjectName objectName) {
+        super(mBeanServer, objectName,
+                objectName.getKeyProperty("WebModule") + " " + objectName.getKeyProperty("name"),
+                "requests/s", "jboss.web Servlets");
+        addResetSafeCounter("requestCount", "Requests");
+        addResetSafeCounter("errorCount", "Errored Requests");
     }
 }

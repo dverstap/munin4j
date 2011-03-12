@@ -88,4 +88,11 @@ public class FieldConfigBuilder {
         return put(FieldAttributeType.MAX, n);
     }
 
+    public FieldConfigBuilder negative(String positive) {
+        return put(FieldAttributeType.NEGATIVE, positive);
+    }
+
+    public FieldConfigBuilder graph(boolean on) {
+        return put(FieldAttributeType.GRAPH, on ? "yes" : "no");
+    }
 }

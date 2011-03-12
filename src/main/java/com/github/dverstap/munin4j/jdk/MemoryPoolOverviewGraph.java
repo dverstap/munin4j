@@ -65,7 +65,7 @@ public class MemoryPoolOverviewGraph implements Graph {
         return new GraphConfigBuilder(GraphUtil.buildName(memoryPoolField.name() + "_" + memoryUsageField.name()))
                 .title(memoryPoolField.getLabel() + ": " + memoryUsageField.getLabel())
                 .vLabel("bytes")
-                .category("Memory Pool Overviews: " + memoryPoolField.getLabel())
+                .category("JDK Memory Pool Overviews: " + memoryPoolField.getLabel())
                 .args("--base 1024 -l 0")
                 .info("As reported by the <a href='http://download.oracle.com/javase/1.5.0/docs/api/java/lang/management/MemoryPoolMXBean.html'>" + borrowedDataSources.size() + " MXBeans in the " + ManagementFactory.MEMORY_POOL_MXBEAN_DOMAIN_TYPE + " domain</a>.")
                 .fields(borrowedDataSources)

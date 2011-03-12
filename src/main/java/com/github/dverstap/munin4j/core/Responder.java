@@ -28,6 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Responder {
@@ -35,15 +37,18 @@ public class Responder {
     private static final Logger log = LoggerFactory.getLogger(Responder.class);
 
     private final String name;
-    private final Map<String, GraphConfig> graphConfigMap;
-    private final Map<String, Graph> graphMap;
+    private final Map<String, GraphConfig> graphConfigMap = new LinkedHashMap<String, GraphConfig>();
+    private final Map<String, Graph> graphMap = new LinkedHashMap<String, Graph>();
     private final LineReader in;
     private final LineWriter out;
 
-    public Responder(String name, Map<String, GraphConfig> graphConfigMap, Map<String, Graph> graphMap, LineReader in, LineWriter out) {
+    public Responder(String name, List<Graph> graphs, LineReader in, LineWriter out) {
         this.name = name;
-        this.graphConfigMap = graphConfigMap;
-        this.graphMap = graphMap;
+        for (Graph graph : graphs) {
+            GraphConfig config = graph.buildConfig();
+            graphConfigMap.put(config.getName(), config);
+            graphMap.put(config.getName(), graph);
+        }
         this.in = in;
         this.out = out;
     }
@@ -63,6 +68,10 @@ public class Responder {
 // TODO handle "cap multigraph"
 //            } else if (line.startsWith("cap")) {
 //
+            } else if (line.trim().equals("quit")) {
+                return;
+            } else if (line.startsWith("cap ")) {
+                writeLine("# no additional capabilities supported.");
             } else {
                 log.warn("Received unknown command: " + line);
                 // TODO print exact supported commands

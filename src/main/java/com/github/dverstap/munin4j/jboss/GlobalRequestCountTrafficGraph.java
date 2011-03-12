@@ -22,47 +22,44 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.github.dverstap.munin4j.jdk;
+package com.github.dverstap.munin4j.jboss;
 
 import com.github.dverstap.munin4j.core.FieldConfig;
 import com.github.dverstap.munin4j.core.FieldConfigBuilder;
-import com.github.dverstap.munin4j.core.Graph;
-import com.github.dverstap.munin4j.core.GraphConfig;
-import com.github.dverstap.munin4j.core.GraphConfigBuilder;
+import com.github.dverstap.munin4j.core.FieldType;
 import com.github.dverstap.munin4j.core.GraphUtil;
+import com.github.dverstap.munin4j.jmx.SimpleMBeanGraph;
 
-import java.lang.management.ManagementFactory;
-import java.lang.management.ThreadMXBean;
-import java.util.Map;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 
-import static com.github.dverstap.munin4j.core.FieldType.DERIVE;
+public class GlobalRequestCountTrafficGraph extends SimpleMBeanGraph {
 
-public class StartedThreadsGraph implements Graph {
-
-    private final FieldConfig totalStartedThreadsCount;
-
-    public StartedThreadsGraph() {
-        totalStartedThreadsCount = new FieldConfigBuilder("total_started_threads_count")
-                .label("Total Started Threads Count")
-                .type(DERIVE)
+    public GlobalRequestCountTrafficGraph(MBeanServer mBeanServer, ObjectName objectName) {
+        super(mBeanServer, objectName,
+                objectName.getKeyProperty("name") + " Traffic",
+                "bytes in (-) / out (+) per ${graph_period}",
+                "jboss.web GlobalRequestProcessor");
+        FieldConfig receivedFieldConfig = new FieldConfigBuilder(GraphUtil.buildName("bytesReceived"))
+                .label("Bytes Received")
+                .type(FieldType.DERIVE)
                 .min(0L)
+                .graph(false)
                 .build();
+        fieldConfigAttributeMap.put(receivedFieldConfig, "bytesReceived");
+
+        FieldConfig sentFieldConfig = new FieldConfigBuilder(GraphUtil.buildName("bytesSent"))
+                .label("Bytes") // note that the label here is Bytes, not Bytes Sent
+                .type(FieldType.DERIVE)
+                .min(0L)
+                .negative(receivedFieldConfig.getName())
+                .build();
+        fieldConfigAttributeMap.put(sentFieldConfig, "bytesSent");
     }
 
     @Override
-    public GraphConfig buildConfig() {
-        return new GraphConfigBuilder("started_threads_count")
-                .title("Started Threads")
-                .vLabel("threads started/s")
-                .category("JDK Threads")
-                .info("As reported by <a href='http://download.oracle.com/javase/1.5.0/docs/api/java/lang/management/ThreadMXBean.html'>" + ManagementFactory.THREAD_MXBEAN_NAME + "</a>.")
-                .fields(totalStartedThreadsCount)
-                .build();
+    protected String buildGraphName() {
+        return GraphUtil.buildName(objectName.toString()) + "_traffic";
     }
 
-    @Override
-    public Map<FieldConfig, Object> fetchValues() {
-        ThreadMXBean bean = ManagementFactory.getThreadMXBean();
-        return GraphUtil.build(totalStartedThreadsCount, bean.getTotalStartedThreadCount());
-    }
 }

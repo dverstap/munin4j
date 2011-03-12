@@ -71,7 +71,7 @@ public abstract class AbstractGarbageCollectionGraph implements Graph {
         return new GraphConfigBuilder((prefix + "_" + postfix).toLowerCase())
                 .title("Garbage Collection " + postfix)
                 .vLabel(vLabel)
-                .category("Garbage Collection")
+                .category("JDK Garbage Collection")
                 .info("As reported by the <a href='http://download.oracle.com/javase/1.5.0/docs/api/java/lang/management/GarbageCollectorMXBean.html'>" + garbageCollectorMap.size() + " MXBeans in the " + ManagementFactory.GARBAGE_COLLECTOR_MXBEAN_DOMAIN_TYPE + " domain</a>.")
                 .fields(garbageCollectorMap.keySet())
                 .build();

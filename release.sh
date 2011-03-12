@@ -15,6 +15,9 @@ cd target
 git clone git@github.com:dverstap/maven-repo.git
 cd ..
 
+# this only works when the maven-release-plugin is configured with:
+# <arguments>-DaltDeploymentRepository="${altDeploymentRepository}"</arguments>
+# because it this command actually runs maven again in the target/checkout directory:
 mvn -DaltDeploymentRepository=dverstap-github-releases::default::file:../maven-repo/maven2/releases release:perform
 
 cd target/maven-repo

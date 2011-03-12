@@ -22,28 +22,27 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.github.dverstap.munin4j.core;
+package com.github.dverstap.munin4j.jboss;
 
-// http://munin-monitoring.org/wiki/protocol-config
-public enum FieldAttributeType {
+import com.github.dverstap.munin4j.core.GraphUtil;
+import com.github.dverstap.munin4j.jmx.SimpleMBeanGraph;
 
-    LABEL("label"),
-    TYPE("type"),
-    INFO("info"),
-    CDEF("cdef"),
-    DRAW("draw"),
-    MIN("min"),
-    MAX("max"),
-    NEGATIVE("negative"),
-    GRAPH("graph");
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 
-    private final String muninName;
+public class GlobalRequestCountProcessingTimeGraph extends SimpleMBeanGraph {
 
-    FieldAttributeType(String muninName) {
-        this.muninName = muninName;
+    public GlobalRequestCountProcessingTimeGraph(MBeanServer mBeanServer, ObjectName objectName) {
+        super(mBeanServer, objectName,
+                objectName.getKeyProperty("name") + " Processing Time",
+                "ms/s", "jboss.web GlobalRequestProcessor");
+        addResetSafeCounter("processingTime", "Processing Time");
+        // TODO, more useful would be a graph of the avg processing time per request and the max processing time attribute
     }
 
-    public String getMuninName() {
-        return muninName;
+    @Override
+    protected String buildGraphName() {
+        return GraphUtil.buildName(objectName.toString()) + "_processing_time";
     }
+
 }

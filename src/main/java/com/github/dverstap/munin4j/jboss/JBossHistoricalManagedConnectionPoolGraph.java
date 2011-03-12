@@ -22,60 +22,63 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.github.dverstap.munin4j.jdk;
+package com.github.dverstap.munin4j.jboss;
 
 import com.github.dverstap.munin4j.core.FieldConfig;
 import com.github.dverstap.munin4j.core.FieldConfigBuilder;
-import com.github.dverstap.munin4j.core.Graph;
+import com.github.dverstap.munin4j.core.FieldType;
 import com.github.dverstap.munin4j.core.GraphConfig;
 import com.github.dverstap.munin4j.core.GraphConfigBuilder;
 import com.github.dverstap.munin4j.core.GraphUtil;
+import com.github.dverstap.munin4j.jmx.MBeanGraph;
 
-import java.lang.management.ManagementFactory;
-import java.lang.management.ThreadMXBean;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static com.github.dverstap.munin4j.core.Draw.AREA;
-import static com.github.dverstap.munin4j.core.FieldType.GAUGE;
+public class JBossHistoricalManagedConnectionPoolGraph extends MBeanGraph {
 
-public class LiveThreadsGraph implements Graph {
+    private final FieldConfig connectionsCreated;
+    private final FieldConfig connectionsDestroyed;
 
-    private final FieldConfig threadCount;
-    private final FieldConfig daemonThreadCount;
-    private final FieldConfig peakThreadCount;
 
-    public LiveThreadsGraph() {
-        threadCount = new FieldConfigBuilder("thread_count")
-                .label("Thread Count")
-                .type(GAUGE)
-                .draw(AREA)
+    public JBossHistoricalManagedConnectionPoolGraph(MBeanServer mBeanServer, ObjectName objectName) {
+        super(mBeanServer, objectName);
+        connectionsCreated = new FieldConfigBuilder("connections_created")
+                .label("Connections Created")
+                .type(FieldType.DERIVE)
+                .min(0L)
                 .build();
-        daemonThreadCount = new FieldConfigBuilder("daemon_thread_count")
-                .label("Deamon Thread Count")
-                .type(GAUGE)
-                .build();
-        peakThreadCount = new FieldConfigBuilder("peak_thread_count")
-                .label("Peak Thread Count")
-                .type(GAUGE)
+        connectionsDestroyed = new FieldConfigBuilder("connections_destroyed")
+                .label("Connections Destroyed")
+                .type(FieldType.DERIVE)
+                .min(0L)
                 .build();
     }
 
     @Override
     public GraphConfig buildConfig() {
-        return new GraphConfigBuilder("live_threads")
-                .title("Live Threads")
-                .vLabel("threads")
-                .category("JDK Threads")
-                .info("As reported by <a href='http://download.oracle.com/javase/1.5.0/docs/api/java/lang/management/ThreadMXBean.html'>" + ManagementFactory.THREAD_MXBEAN_NAME + "</a>.")
-                .fields(threadCount, daemonThreadCount, peakThreadCount)
+        return new GraphConfigBuilder(this.buildGraphName())
+                .title(objectName.getKeyProperty("name") + " Historical Connection Pool")
+                .vLabel("connections")
+                .category("jboss.jca")
+                .fields(connectionsCreated, connectionsDestroyed)
                 .build();
+    }
+
+    private String buildGraphName() {
+        String name = objectName.getKeyProperty("name");
+        return GraphUtil.buildName(name + "_historical_connection_pool");
     }
 
     @Override
     public Map<FieldConfig, Object> fetchValues() {
-        ThreadMXBean bean = ManagementFactory.getThreadMXBean();
-        return GraphUtil.build(threadCount, bean.getThreadCount(),
-                daemonThreadCount, bean.getDaemonThreadCount(),
-                peakThreadCount, bean.getPeakThreadCount());
+        Map<FieldConfig, Object> result = new LinkedHashMap<FieldConfig, Object>();
+        result.put(connectionsCreated, getAttribute("MinSize"));
+        result.put(connectionsDestroyed, getAttribute("MaxSize"));
+        return result;
     }
+
+
 }

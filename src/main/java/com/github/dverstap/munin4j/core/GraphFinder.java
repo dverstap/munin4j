@@ -24,26 +24,15 @@
 
 package com.github.dverstap.munin4j.core;
 
-// http://munin-monitoring.org/wiki/protocol-config
-public enum FieldAttributeType {
+import java.util.List;
 
-    LABEL("label"),
-    TYPE("type"),
-    INFO("info"),
-    CDEF("cdef"),
-    DRAW("draw"),
-    MIN("min"),
-    MAX("max"),
-    NEGATIVE("negative"),
-    GRAPH("graph");
+/**
+ * In application servers, applications get deployed and undeployed dynamically,
+ * and what needs to be monitored can also change dynamically. We deal with this
+ * by registering GraphFinder instances, rather than a static set of Graph instances.
+ */
+public interface GraphFinder {
 
-    private final String muninName;
+    List<Graph> find();
 
-    FieldAttributeType(String muninName) {
-        this.muninName = muninName;
-    }
-
-    public String getMuninName() {
-        return muninName;
-    }
 }

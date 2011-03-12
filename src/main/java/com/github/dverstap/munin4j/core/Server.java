@@ -31,94 +31,108 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 public class Server implements Runnable {
 
     private static final Logger log = LoggerFactory.getLogger(Server.class);
 
-    private String address = "0.0.0.0";
-    private int port = 14949;
+    private final String hostName;
+    private String bindAddress = "0.0.0.0";
+    private int bindPort = 14949;
 
-    private final Map<String, GraphConfig> graphConfigMap = new LinkedHashMap<String, GraphConfig>();
-    private final Map<String, Graph> graphMap = new LinkedHashMap<String, Graph>();
+    private final GraphFinder graphFinder;
 
-    public Server(List<Graph> graphs) {
-        for (Graph graph : graphs) {
-            GraphConfig config = graph.buildConfig();
-            graphConfigMap.put(config.getName(), config);
-            graphMap.put(config.getName(), graph);
-        }
+    private volatile boolean stopped = false;
+    private ServerSocket serverSocket;
+
+    public Server(String hostName, List<GraphFinder> graphFinders) {
+        this(hostName, new CompositeGraphFinder(graphFinders));
     }
 
-    public String getAddress() {
-        return address;
+    public Server(String hostName, GraphFinder graphFinder) {
+        this.hostName = hostName;
+        this.graphFinder = graphFinder;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public String getBindAddress() {
+        return bindAddress;
     }
 
-    public int getPort() {
-        return port;
+    public void setBindAddress(String bindAddress) {
+        this.bindAddress = bindAddress;
     }
 
-    public void setPort(int port) {
-        this.port = port;
+    public int getBindPort() {
+        return bindPort;
+    }
+
+    public void setBindPort(int bindPort) {
+        this.bindPort = bindPort;
+    }
+
+    public void start() throws IOException {
+        serverSocket = new ServerSocket(this.bindPort, 50, InetAddress.getByName(bindAddress));
     }
 
     public void run() {
-        log.info("Starting munin node server on " + address + ":" + port);
+        log.info("Starting munin node server on " + bindAddress + ":" + bindPort);
 
-        ServerSocket serverSocket;
-        Thread thread;
-
-
-        try {
-            serverSocket = new ServerSocket(this.port, 50, InetAddress.getByName(address));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-//        try {
-//            serverSocket.setSoTimeout(1000);
-//        } catch (SocketException e) {
-//            throw new RuntimeException(e);
-//        }
-
-        // TODO support clean shutdown
-        while (!Thread.interrupted()) {
-            Socket sock = null;
+        stopped = false;
+        while (!serverSocket.isClosed()) {
+            Socket sock;
             try {
                 sock = serverSocket.accept();
-                log.info("Accepted new connection from: " + sock.getInetAddress() + ":" + sock.getPort());
-                sock.setSoTimeout(15000);
-                LineSocket lineSocket = new LineSocket(sock);
-                Responder responder = new Responder("myjava", graphConfigMap, graphMap, lineSocket, lineSocket);
-                responder.process();
-            } catch (SocketTimeoutException ste) {
-                log.warn("Closing connection from: " + sock.getInetAddress() + ":" + sock.getPort() + " because of timeout.");
+                handleConnection(sock); // does not throw any exceptions
+            } catch (SocketException e) {
+                if (stopped) {
+                    log.debug("Got SocketException and stopped has been set to true; a clean stop must have been requested.");
+                } else {
+                    log.warn("Ignoring exception: " + e.getMessage(), e);
+                }
             } catch (IOException e) {
-                log.warn(e.getMessage(), e);
-            } finally {
-                if (sock != null) {
-                    try {
-                        log.info("Closing connection from: " + sock.getInetAddress() + ":" + sock.getPort());
-                        sock.close();
-                    } catch (IOException e) {
-                        log.warn("Failed to finally close socket because: " + e.getMessage(), e);
-                    }
+                log.warn("Ignoring exception: " + e.getMessage(), e);
+            }
+        }
+        log.debug("Munin server socket was closed.");
+        log.info("Munin server has stopped listening for requests.");
+        serverSocket = null;
+    }
+
+    private void handleConnection(Socket sock) {
+        try {
+            log.info("Accepted new connection from: " + sock.getInetAddress() + ":" + sock.getPort());
+            sock.setSoTimeout(15000);
+            sock.setTcpNoDelay(true);
+            LineSocket lineSocket = new LineSocket(sock);
+            Responder responder = new Responder(hostName, graphFinder.find(), lineSocket, lineSocket);
+            responder.process();
+        } catch (SocketTimeoutException ste) {
+            log.warn("Closing connection from: " + sock.getInetAddress() + ":" + sock.getPort() + " because of timeout.");
+        } catch (Throwable t) {
+            log.warn(t.getMessage(), t);
+        } finally {
+            if (sock != null) {
+                try {
+                    log.info("Closing connection from: " + sock.getInetAddress() + ":" + sock.getPort());
+                    sock.close();
+                } catch (IOException e) {
+                    log.warn("Failed to finally close socket because: " + e.getMessage(), e);
                 }
             }
         }
 
-        // TODO should be in a finally block:
+    }
+
+    public void requestStop() {
+        log.info("Going to stop server ... ");
+        this.stopped = true;
         try {
-            serverSocket.close();
+            this.serverSocket.close();
         } catch (IOException e) {
-            log.warn("Failed to finally close server socket because: " + e.getMessage(), e);
+            log.warn("requestStop(): " + e.getMessage(), e);
         }
     }
 

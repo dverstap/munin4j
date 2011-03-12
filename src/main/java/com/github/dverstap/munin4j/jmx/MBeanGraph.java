@@ -22,28 +22,35 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.github.dverstap.munin4j.core;
+package com.github.dverstap.munin4j.jmx;
 
-// http://munin-monitoring.org/wiki/protocol-config
-public enum FieldAttributeType {
+import com.github.dverstap.munin4j.core.Graph;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-    LABEL("label"),
-    TYPE("type"),
-    INFO("info"),
-    CDEF("cdef"),
-    DRAW("draw"),
-    MIN("min"),
-    MAX("max"),
-    NEGATIVE("negative"),
-    GRAPH("graph");
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 
-    private final String muninName;
+public abstract class MBeanGraph implements Graph {
 
-    FieldAttributeType(String muninName) {
-        this.muninName = muninName;
+    protected final MBeanServer mBeanServer;
+    protected final ObjectName objectName;
+
+    public MBeanGraph(MBeanServer mBeanServer, ObjectName objectName) {
+        this.mBeanServer = mBeanServer;
+        this.objectName = objectName;
     }
 
-    public String getMuninName() {
-        return muninName;
+    protected Object getAttribute(String name) {
+        Logger log = LoggerFactory.getLogger(this.getClass());
+        try {
+            if (log.isDebugEnabled()) {
+                log.debug("Getting attribute {} from {}", name, objectName);
+            }
+            return mBeanServer.getAttribute(objectName, name);
+        } catch (Throwable t) {
+            log.warn(t.getMessage(), t);
+            return null;
+        }
     }
 }

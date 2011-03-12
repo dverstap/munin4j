@@ -24,26 +24,24 @@
 
 package com.github.dverstap.munin4j.core;
 
-// http://munin-monitoring.org/wiki/protocol-config
-public enum FieldAttributeType {
+import java.util.ArrayList;
+import java.util.List;
 
-    LABEL("label"),
-    TYPE("type"),
-    INFO("info"),
-    CDEF("cdef"),
-    DRAW("draw"),
-    MIN("min"),
-    MAX("max"),
-    NEGATIVE("negative"),
-    GRAPH("graph");
+public class CompositeGraphFinder implements GraphFinder {
 
-    private final String muninName;
+    private final List<GraphFinder> graphFinders;
 
-    FieldAttributeType(String muninName) {
-        this.muninName = muninName;
+    public CompositeGraphFinder(List<GraphFinder> graphFinders) {
+        this.graphFinders = graphFinders;
     }
 
-    public String getMuninName() {
-        return muninName;
+    @Override
+    public List<Graph> find() {
+        List<Graph> result = new ArrayList<Graph>();
+        for (GraphFinder graphFinder : graphFinders) {
+            result.addAll(graphFinder.find());
+        }
+        return result;
     }
+
 }

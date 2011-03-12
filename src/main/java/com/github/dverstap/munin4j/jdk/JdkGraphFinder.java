@@ -26,57 +26,38 @@ package com.github.dverstap.munin4j.jdk;
 
 import com.github.dverstap.munin4j.core.Graph;
 import com.github.dverstap.munin4j.core.GraphFinder;
-import com.github.dverstap.munin4j.core.Server;
-import com.github.dverstap.munin4j.core.SingleGraphFinder;
 
-import java.io.IOException;
+import java.lang.management.MemoryPoolMXBean;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
-public class Main {
-
-    public static void main(String[] args) throws IOException {
-
-        new Thread(new ThreadStarter()).start();
-
-
-        List<GraphFinder> graphFinders = new ArrayList<GraphFinder>();
-        graphFinders.add(new SingleGraphFinder() {
-            @Override
-            protected Graph create() {
-                return new MillisPerSecondGraph();
-            }
-        });
-
-        graphFinders.add(new JdkGraphFinder());
-        Server server = new Server("myjava", graphFinders);
-        server.start();
-        server.run();
-    }
-
-}
-
-class ThreadStarter implements Runnable {
+public class JdkGraphFinder implements GraphFinder {
 
     @Override
-    public void run() {
-        for (; ;) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                // ignored
+    public List<Graph> find() {
+        List<Graph> graphs = new ArrayList<Graph>(Arrays.asList(
+                        new HeapMemoryGraph(),
+                        new NonHeapMemoryGraph(),
+                        new LiveThreadsGraph(),
+                        new StartedThreadsGraph(),
+                        new GarbageCollectionCountGraph(),
+                        new GarbageCollectionTimeGraph()
+                ));
+
+        Map<MemoryPoolMXBean, Map<MemoryPoolField, DetailedMemoryPoolGraph>> memoryPoolMap = DetailedMemoryPoolGraph.build();
+        for (Map<MemoryPoolField, DetailedMemoryPoolGraph> map : memoryPoolMap.values()) {
+            for (DetailedMemoryPoolGraph graph : map.values()) {
+                graphs.add(graph);
             }
-            new Thread() {
-
-                @Override
-                public void run() {
-                    for (int i = 0; i < 100; i++) {
-                        byte[] ints = new byte[1024 * 1024];
-                    }
-                    //System.out.println("ALLOCATED MEM");
-                }
-
-            }.start();
         }
+        for (MemoryPoolField memoryPoolField : MemoryPoolField.values()) {
+            for (MemoryUsageField memoryUsageField : MemoryUsageField.values()) {
+                graphs.add(new MemoryPoolOverviewGraph(memoryPoolMap, memoryPoolField, memoryUsageField));
+            }
+        }
+        return graphs;
     }
+
 }

@@ -24,26 +24,16 @@
 
 package com.github.dverstap.munin4j.core;
 
-// http://munin-monitoring.org/wiki/protocol-config
-public enum FieldAttributeType {
+import java.util.Collections;
+import java.util.List;
 
-    LABEL("label"),
-    TYPE("type"),
-    INFO("info"),
-    CDEF("cdef"),
-    DRAW("draw"),
-    MIN("min"),
-    MAX("max"),
-    NEGATIVE("negative"),
-    GRAPH("graph");
+public abstract class SingleGraphFinder implements GraphFinder {
 
-    private final String muninName;
-
-    FieldAttributeType(String muninName) {
-        this.muninName = muninName;
+    @Override
+    public List<Graph> find() {
+        return Collections.singletonList(create());
     }
 
-    public String getMuninName() {
-        return muninName;
-    }
+    protected abstract Graph create();
+
 }
