@@ -24,7 +24,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 <server>
 
-    <mbean code="com.github.dverstap.munin4j.jboss.MuninService"
+    <mbean code="org.munin4j.jboss.MuninService"
            name="munin4j:service=MuninService">
         <attribute name="HostName">myjboss</attribute>
         <attribute name="BindAddress">127.0.0.1</attribute>
