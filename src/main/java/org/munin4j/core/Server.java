@@ -102,12 +102,13 @@ public class Server implements Runnable {
     }
 
     private void handleConnection(Socket sock) {
+        Responder responder = null;
         try {
-            log.info("Accepted new connection from: " + sock.getInetAddress() + ":" + sock.getPort());
+            log.debug("Accepted new connection from: " + sock.getInetAddress() + ":" + sock.getPort());
             sock.setSoTimeout(15000);
             sock.setTcpNoDelay(true);
             LineSocket lineSocket = new LineSocket(sock);
-            Responder responder = new Responder(hostName, graphFinder.find(), lineSocket, lineSocket);
+            responder = new Responder(hostName, graphFinder.find(), lineSocket, lineSocket);
             responder.process();
         } catch (SocketTimeoutException ste) {
             log.warn("Closing connection from: " + sock.getInetAddress() + ":" + sock.getPort() + " because of timeout.");
@@ -116,7 +117,10 @@ public class Server implements Runnable {
         } finally {
             if (sock != null) {
                 try {
-                    log.info("Closing connection from: " + sock.getInetAddress() + ":" + sock.getPort());
+                    log.debug("Closing connection from: " + sock.getInetAddress() + ":" + sock.getPort());
+                    if (responder != null && log.isInfoEnabled()) {
+                        log.info("Handled " + responder.getFetchRequests() +  " fetch requests and responded with " + responder.getFetchedGraphs() +" graphs and " + responder.getFetchedFields() +" fields.");
+                    }
                     sock.close();
                 } catch (IOException e) {
                     log.warn("Failed to finally close socket because: " + e.getMessage(), e);

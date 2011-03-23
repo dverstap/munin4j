@@ -42,6 +42,10 @@ public class Responder {
     private final LineReader in;
     private final LineWriter out;
 
+    private int fetchRequests;
+    private int fetchedGraphs;
+    private int fetchedFields;
+
     public Responder(String name, List<Graph> graphs, LineReader in, LineWriter out) {
         this.name = name;
         for (Graph graph : graphs) {
@@ -101,11 +105,14 @@ public class Responder {
     }
 
     private void fetch(String graphName) {
+        fetchRequests++;
         Graph graph = graphMap.get(graphName);
         if (graph != null) {
             Map<FieldConfig, ?> values = graph.fetchValues();
             validate(values);
+            fetchedGraphs++;
             for (Map.Entry<FieldConfig, ?> entry : values.entrySet()) {
+                fetchedFields++;
                 writeLine(entry.getKey().getName() + ".value " + entry.getValue());
             }
             writeLine(".");
@@ -129,4 +136,16 @@ public class Responder {
         out.writeLine(line);
     }
 
+
+    public int getFetchRequests() {
+        return fetchRequests;
+    }
+
+    public int getFetchedGraphs() {
+        return fetchedGraphs;
+    }
+
+    public int getFetchedFields() {
+        return fetchedFields;
+    }
 }
