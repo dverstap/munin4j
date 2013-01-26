@@ -25,18 +25,18 @@
 package org.munin4j.jboss;
 
 import org.munin4j.core.GraphUtil;
-import org.munin4j.jmx.SimpleMBeanGraph;
+import org.munin4j.jmx.ResetSafeCounterMBeanGraph;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-public class GlobalRequestCountProcessingTimeGraph extends SimpleMBeanGraph {
+public class GlobalRequestCountProcessingTimeGraph extends ResetSafeCounterMBeanGraph {
 
     public GlobalRequestCountProcessingTimeGraph(MBeanServer mBeanServer, ObjectName objectName) {
         super(mBeanServer, objectName,
                 objectName.getKeyProperty("name") + " Processing Time",
                 "ms/s", "jboss.web GlobalRequestProcessor");
-        addResetSafeCounter("processingTime", "Processing Time");
+        add("processingTime", "Processing Time");
         // TODO, more useful would be a graph of the avg processing time per request and the max processing time attribute
     }
 

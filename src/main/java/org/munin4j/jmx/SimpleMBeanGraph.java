@@ -39,9 +39,9 @@ import java.util.Map;
 public class SimpleMBeanGraph extends MBeanGraph {
 
     protected final Map<FieldConfig, String> fieldConfigAttributeMap = new LinkedHashMap<FieldConfig, String>();
-    private final String title;
-    private final String vLabel;
-    private final String category;
+    protected final String title;
+    protected final String vLabel;
+    protected final String category;
 
     public SimpleMBeanGraph(MBeanServer mBeanServer, ObjectName objectName, String title, String vLabel, String category) {
         super(mBeanServer, objectName);
@@ -51,51 +51,33 @@ public class SimpleMBeanGraph extends MBeanGraph {
     }
 
     public FieldConfig add(String mBeanAttributeName, String label, FieldType type) {
-        FieldConfig fieldConfig = new FieldConfigBuilder(GraphUtil.buildName(mBeanAttributeName))
-                .label(label)
-                .type(type)
-                .build();
+        FieldConfig fieldConfig = fieldConfigBuilder(mBeanAttributeName, label, type).build();
         fieldConfigAttributeMap.put(fieldConfig, mBeanAttributeName);
         return fieldConfig;
     }
 
-    public FieldConfig addGauge(String mBeanAttributeName, String label) {
-        FieldConfig fieldConfig = new FieldConfigBuilder(GraphUtil.buildName(mBeanAttributeName))
+    protected FieldConfigBuilder fieldConfigBuilder(String mBeanAttributeName, String label, FieldType type) {
+        FieldConfigBuilder builder = new FieldConfigBuilder(GraphUtil.buildName(mBeanAttributeName))
                 .label(label)
-                .type(FieldType.GAUGE)
-                .build();
-        fieldConfigAttributeMap.put(fieldConfig, mBeanAttributeName);
-        return fieldConfig;
-    }
-
-    public FieldConfig addPositiveGauge(String mBeanAttributeName, String label) {
-        FieldConfig fieldConfig = new FieldConfigBuilder(GraphUtil.buildName(mBeanAttributeName))
-                .label(label)
-                .type(FieldType.GAUGE)
-                .min(0L)
-                .build();
-        fieldConfigAttributeMap.put(fieldConfig, mBeanAttributeName);
-        return fieldConfig;
-    }
-
-    public FieldConfig addResetSafeCounter(String mBeanAttributeName, String label) {
-        FieldConfig fieldConfig = new FieldConfigBuilder(GraphUtil.buildName(mBeanAttributeName))
-                .label(label)
-                .type(FieldType.DERIVE)
-                .min(0L)
-                .build();
-        fieldConfigAttributeMap.put(fieldConfig, mBeanAttributeName);
-        return fieldConfig;
+                .type(type);
+        String description = getDescription(mBeanAttributeName);
+        if (description != null) {
+            builder.info(description);
+        }
+        return builder;
     }
 
     @Override
     public GraphConfig buildConfig() {
+        return graphConfigBuilder().build();
+    }
+
+    protected GraphConfigBuilder graphConfigBuilder() {
         return new GraphConfigBuilder(buildGraphName())
                 .title(title)
                 .vLabel(vLabel)
                 .category(category)
-                .fields(fieldConfigAttributeMap.keySet())
-                .build();
+                .fields(fieldConfigAttributeMap.keySet());
     }
 
     protected String buildGraphName() {

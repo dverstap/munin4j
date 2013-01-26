@@ -22,19 +22,26 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.munin4j.jboss;
+package org.munin4j.activemq;
 
 import org.munin4j.jmx.ResetSafeCounterMBeanGraph;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-public class ServletRequestCountGraph extends ResetSafeCounterMBeanGraph {
-    public ServletRequestCountGraph(MBeanServer mBeanServer, ObjectName objectName) {
-        super(mBeanServer, objectName,
-                objectName.getKeyProperty("WebModule") + " " + objectName.getKeyProperty("name"),
-                "requests/s", "jboss.web Servlets");
-        add("requestCount", "Requests");
-        add("errorCount", "Errored Requests");
+public class DestinationMessageCountersGraph extends ResetSafeCounterMBeanGraph {
+
+    public DestinationMessageCountersGraph(MBeanServer mBeanServer, ObjectName objectName, String brokerName, String destinationName, String category) {
+        super(mBeanServer, objectName, brokerName + " " + destinationName + " Counters", "messages", category);
+        add("EnqueueCount", "Enqueued");
+        add("DequeueCount", "Dequeued");
+        add("DispatchCount", "Dispatched");
+        add("InFlightCount", "In Flight");
+        add("ExpiredCount", "Expired");
+    }
+
+    @Override
+    protected String buildGraphName() {
+        return super.buildGraphName() + "_messagecounters";
     }
 }

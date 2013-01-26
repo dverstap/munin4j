@@ -25,19 +25,19 @@
 package org.munin4j.jboss;
 
 import org.munin4j.core.GraphUtil;
-import org.munin4j.jmx.SimpleMBeanGraph;
+import org.munin4j.jmx.ResetSafeCounterMBeanGraph;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-public class GlobalRequestCountRequestsGraph extends SimpleMBeanGraph {
+public class GlobalRequestCountRequestsGraph extends ResetSafeCounterMBeanGraph {
 
     public GlobalRequestCountRequestsGraph(MBeanServer mBeanServer, ObjectName objectName) {
         super(mBeanServer, objectName,
                 objectName.getKeyProperty("name") + " Requests",
                 "requests/s", "jboss.web GlobalRequestProcessor");
-        addResetSafeCounter("requestCount", "Requests");
-        addResetSafeCounter("errorCount", "Errored Requests");
+        add("requestCount", "Requests");
+        add("errorCount", "Errored Requests");
     }
 
     @Override

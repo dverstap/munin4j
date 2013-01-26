@@ -22,19 +22,35 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.munin4j.jboss;
+package org.munin4j.jmx;
 
-import org.munin4j.jmx.ResetSafeCounterMBeanGraph;
+import org.munin4j.core.FieldConfig;
+import org.munin4j.core.FieldConfigBuilder;
+import org.munin4j.core.FieldType;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-public class ServletRequestCountGraph extends ResetSafeCounterMBeanGraph {
-    public ServletRequestCountGraph(MBeanServer mBeanServer, ObjectName objectName) {
-        super(mBeanServer, objectName,
-                objectName.getKeyProperty("WebModule") + " " + objectName.getKeyProperty("name"),
-                "requests/s", "jboss.web Servlets");
-        add("requestCount", "Requests");
-        add("errorCount", "Errored Requests");
+public class GaugeMBeanGraph extends SimpleMBeanGraph {
+
+    protected Number min;
+    protected Number max;
+
+    public GaugeMBeanGraph(MBeanServer mBeanServer, ObjectName objectName, String title, String vLabel, String category) {
+        super(mBeanServer, objectName, title, vLabel, category);
     }
+
+    public FieldConfig add(String mBeanAttributeName, String label) {
+        FieldConfigBuilder builder = fieldConfigBuilder(mBeanAttributeName, label, FieldType.GAUGE);
+        if (min != null) {
+            builder.min(min);
+        }
+        if (max != null) {
+            builder.max(max);
+        }
+        FieldConfig fieldConfig = builder.build();
+        fieldConfigAttributeMap.put(fieldConfig, mBeanAttributeName);
+        return fieldConfig;
+    }
+
 }

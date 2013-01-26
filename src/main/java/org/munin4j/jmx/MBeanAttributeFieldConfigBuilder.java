@@ -24,55 +24,37 @@
 
 package org.munin4j.jmx;
 
-import org.munin4j.core.Graph;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.munin4j.core.FieldConfigBuilder;
 
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanInfo;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-public abstract class MBeanGraph implements Graph {
+public class MBeanAttributeFieldConfigBuilder extends FieldConfigBuilder {
 
-    protected final MBeanServer mBeanServer;
-    protected final ObjectName objectName;
+    private final ObjectName objectName;
+    private final MBeanInfo mBeanInfo;
+    private final MBeanAttributeInfo attributeInfo;
 
-    public MBeanGraph(MBeanServer mBeanServer, ObjectName objectName) {
-        this.mBeanServer = mBeanServer;
+    public MBeanAttributeFieldConfigBuilder(MBeanServer mBeanServer, ObjectName objectName, String name) {
+        super(name);
         this.objectName = objectName;
-    }
-
-    protected Object getAttribute(String name) {
-        Logger log = LoggerFactory.getLogger(this.getClass());
         try {
-            log.debug("Getting attribute {} from {}", name, objectName);
-            return mBeanServer.getAttribute(objectName, name);
-        } catch (Throwable t) {
-            log.warn(t.getMessage(), t);
-            return null;
+            mBeanInfo = mBeanServer.getMBeanInfo(objectName);
+            attributeInfo = findAttributeInfo();
+            this.label(attributeInfo.getDescription());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
-    protected String getDescription(String name) {
-        Logger log = LoggerFactory.getLogger(this.getClass());
-        try {
-            log.debug("Getting description of {} from {}", name, objectName);
-            MBeanInfo mBeanInfo = mBeanServer.getMBeanInfo(objectName);
-            return findAttributeInfo(mBeanInfo, name).getDescription();
-        } catch (Throwable t) {
-            log.warn(t.getMessage(), t);
-            return null;
-        }
-    }
-
-    private MBeanAttributeInfo findAttributeInfo(MBeanInfo mBeanInfo, String name) {
+    private MBeanAttributeInfo findAttributeInfo() {
         for (MBeanAttributeInfo info : mBeanInfo.getAttributes()) {
-            if (info.getName().equals(name)) {
+            if (info.getName().equals(getName())) {
                 return info;
             }
         }
-        throw new IllegalArgumentException(String.format("Could not find attribute '%s' in MBean '%s'", name, objectName));
+        throw new IllegalArgumentException(String.format("Could not find attribute '%s' in MBean '%s'", getName(), objectName));
     }
-
 }

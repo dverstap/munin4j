@@ -22,19 +22,31 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.munin4j.jboss;
+package org.munin4j.jmx;
 
-import org.munin4j.jmx.ResetSafeCounterMBeanGraph;
+import org.munin4j.core.*;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-public class ServletRequestCountGraph extends ResetSafeCounterMBeanGraph {
-    public ServletRequestCountGraph(MBeanServer mBeanServer, ObjectName objectName) {
-        super(mBeanServer, objectName,
-                objectName.getKeyProperty("WebModule") + " " + objectName.getKeyProperty("name"),
-                "requests/s", "jboss.web Servlets");
-        add("requestCount", "Requests");
-        add("errorCount", "Errored Requests");
+public class PercentageMBeanGraph extends GaugeMBeanGraph {
+
+    public PercentageMBeanGraph(MBeanServer mBeanServer, ObjectName objectName, String title, String vLabel, String category) {
+        super(mBeanServer, objectName, title, vLabel, category);
+        min = 0;
+        max = 100;
     }
+
+    @Override
+    public GraphConfig buildConfig() {
+        return new GraphConfigBuilder(buildGraphName())
+                .title(title)
+                .vLabel(vLabel)
+                .category(category)
+                .lowerLimit(min)
+                .upperLimit(max)
+                .fields(fieldConfigAttributeMap.keySet())
+                .build();
+    }
+
 }

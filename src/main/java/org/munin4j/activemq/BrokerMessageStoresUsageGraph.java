@@ -22,19 +22,24 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.munin4j.jboss;
+package org.munin4j.activemq;
 
-import org.munin4j.jmx.ResetSafeCounterMBeanGraph;
+import org.munin4j.jmx.PercentageMBeanGraph;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-public class ServletRequestCountGraph extends ResetSafeCounterMBeanGraph {
-    public ServletRequestCountGraph(MBeanServer mBeanServer, ObjectName objectName) {
-        super(mBeanServer, objectName,
-                objectName.getKeyProperty("WebModule") + " " + objectName.getKeyProperty("name"),
-                "requests/s", "jboss.web Servlets");
-        add("requestCount", "Requests");
-        add("errorCount", "Errored Requests");
+public class BrokerMessageStoresUsageGraph extends PercentageMBeanGraph {
+
+    public BrokerMessageStoresUsageGraph(MBeanServer mBeanServer, ObjectName objectName, String brokerName, String category) {
+        super(mBeanServer, objectName, brokerName + " Message Stores Usage", "%", category);
+        add("MemoryPercentUsage", "Memory Store Usage");
+        add("TempPercentUsage", "Temp Store Usage");
+        add("StorePercentUsage", "Persistent Store Usage");
+    }
+
+    @Override
+    protected String buildGraphName() {
+        return super.buildGraphName() + "_messagestoresusage";
     }
 }

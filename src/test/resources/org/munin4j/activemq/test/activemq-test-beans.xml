@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <bean id="mBeanServer"
+          class="org.springframework.jmx.support.MBeanServerFactoryBean">
+        <property name="locateExistingServerIfPossible" value="true"/>
+    </bean>
+
+    <bean id="muninServer"
+          class="org.munin4j.core.Server"
+          init-method="start">
+        <constructor-arg name="hostName" value="0.0.0.0"/>
+        <constructor-arg name="graphFinders">
+            <util:list>
+                <bean class="org.munin4j.jdk.JdkGraphFinder"/>
+                <bean class="org.munin4j.activemq.BrokerGraphFinder">
+                    <constructor-arg ref="mBeanServer"/>
+                </bean>
+                <bean class="org.munin4j.activemq.DestinationGraphFinder">
+                    <constructor-arg ref="mBeanServer"/>
+                    <constructor-arg value="Queue"/>
+                </bean>
+                <bean class="org.munin4j.activemq.DestinationGraphFinder">
+                    <constructor-arg ref="mBeanServer"/>
+                    <constructor-arg value="Topic"/>
+                </bean>
+            </util:list>
+        </constructor-arg>
+        <property name="bindPort" value="14949"/>
+    </bean>
+
+    <bean id="muninThread"
+          class="java.lang.Thread"
+          init-method="start">
+        <constructor-arg ref="muninServer"/>
+        <constructor-arg value="Munin"/>
+    </bean>
+
+</beans>

@@ -22,19 +22,33 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.munin4j.jboss;
+package org.munin4j.activemq;
 
-import org.munin4j.jmx.ResetSafeCounterMBeanGraph;
+import org.munin4j.jmx.GaugeMBeanGraph;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-public class ServletRequestCountGraph extends ResetSafeCounterMBeanGraph {
-    public ServletRequestCountGraph(MBeanServer mBeanServer, ObjectName objectName) {
-        super(mBeanServer, objectName,
-                objectName.getKeyProperty("WebModule") + " " + objectName.getKeyProperty("name"),
-                "requests/s", "jboss.web Servlets");
-        add("requestCount", "Requests");
-        add("errorCount", "Errored Requests");
+public class BrokerSubscribersGraph extends GaugeMBeanGraph {
+
+    public BrokerSubscribersGraph(MBeanServer mBeanServer, ObjectName objectName, String brokerName, String category) {
+        super(mBeanServer, objectName, brokerName + " Subscribers", "subscribers", category);
+        add("DurableTopicSubscribers", "Durable Topic Subscribers");
+        add("InactiveDurableTopicSubscribers", "Inactive Durable Topic Subscribers");
+        add("QueueSubscribers", "Queue Subscribers");
+        add("TemporaryQueueSubscribers", "Temporary Queue Subscribers");
+        add("TemporaryTopicSubscribers", "Temporary Topic Subscribers");
+        add("TopicSubscribers", "Topic Subscribers");
+    }
+
+    @Override
+    protected Integer getAttribute(String name) {
+        ObjectName[] objectNames = (ObjectName[]) super.getAttribute(name);
+        return objectNames.length;
+    }
+
+    @Override
+    protected String buildGraphName() {
+        return super.buildGraphName() + "_subscribers";
     }
 }

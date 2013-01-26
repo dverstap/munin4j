@@ -27,8 +27,14 @@ package org.munin4j.core;
 public enum FieldType {
 
     COUNTER,
-    DERIVE, // often used instead of counter, with min=0, to deal better with counter resets
+
+    /**  Often used instead of COUNTER, with min=0, to deal better with counter resets.
+     *   @see <a href="http://munin-monitoring.org/wiki/HowToWritePlugins">How to Write Plugins on the Munin wiki</a>
+     */
+    DERIVE,
+
     ABSOLUTE,
+
     GAUGE
 
 }

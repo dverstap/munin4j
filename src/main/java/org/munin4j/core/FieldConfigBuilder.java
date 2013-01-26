@@ -76,6 +76,10 @@ public class FieldConfigBuilder {
         return put(FieldAttributeType.LABEL, label);
     }
 
+    public FieldConfigBuilder info(String info) {
+        return put(FieldAttributeType.INFO, info);
+    }
+
     public FieldConfigBuilder draw(Draw draw) {
         return put(FieldAttributeType.DRAW, draw);
     }

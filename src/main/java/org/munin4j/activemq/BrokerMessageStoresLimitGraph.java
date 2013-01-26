@@ -22,19 +22,30 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.munin4j.jboss;
+package org.munin4j.activemq;
 
-import org.munin4j.jmx.ResetSafeCounterMBeanGraph;
+import org.munin4j.core.GraphConfig;
+import org.munin4j.jmx.GaugeMBeanGraph;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-public class ServletRequestCountGraph extends ResetSafeCounterMBeanGraph {
-    public ServletRequestCountGraph(MBeanServer mBeanServer, ObjectName objectName) {
-        super(mBeanServer, objectName,
-                objectName.getKeyProperty("WebModule") + " " + objectName.getKeyProperty("name"),
-                "requests/s", "jboss.web Servlets");
-        add("requestCount", "Requests");
-        add("errorCount", "Errored Requests");
+public class BrokerMessageStoresLimitGraph extends GaugeMBeanGraph {
+
+    public BrokerMessageStoresLimitGraph(MBeanServer mBeanServer, ObjectName objectName, String brokerName, String category) {
+        super(mBeanServer, objectName, brokerName + " Message Stores Limits", "bytes", category);
+        add("MemoryLimit", "Memory Store Limit");
+        add("TempLimit", "Temp Store Limit");
+        add("StoreLimit", "Persistent Store Limit");
+    }
+
+    @Override
+    public GraphConfig buildConfig() {
+        return graphConfigBuilder().base1024().build();
+    }
+
+    @Override
+    protected String buildGraphName() {
+        return super.buildGraphName() + "_messagestoreslimit";
     }
 }

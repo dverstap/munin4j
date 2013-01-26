@@ -24,12 +24,7 @@
 
 package org.munin4j.core;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class GraphConfigBuilder {
 
@@ -79,4 +74,29 @@ public class GraphConfigBuilder {
         return put(GraphAttributeType.GRAPH_ARGS, args);
     }
 
+    public GraphConfigBuilder lowerLimit(Number limit) {
+        return addGraphArg("--lower-limit " + limit);
+    }
+
+    public GraphConfigBuilder upperLimit(Number limit) {
+        return addGraphArg("--upper-limit " + limit);
+    }
+
+    public GraphConfigBuilder base1000() {
+        return addGraphArg("--base 1000");
+    }
+
+    public GraphConfigBuilder base1024() {
+        return addGraphArg("--base 1024");
+    }
+
+    public GraphConfigBuilder addGraphArg(String arg) {
+        String args = (String) attributeMap.get(GraphAttributeType.GRAPH_ARGS);
+        if (args == null) {
+            args = "";
+        }
+        args += " " + arg;
+        attributeMap.put(GraphAttributeType.GRAPH_ARGS, args);
+        return this;
+    }
 }
