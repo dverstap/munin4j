@@ -59,6 +59,7 @@ public class BrokerGraphFinder implements GraphFinder {
                 result.add(new BrokerMessageStoresUsageGraph(mBeanServer, objectName, brokerName, category));
                 result.add(new BrokerDestinationsGraph(mBeanServer, objectName, brokerName, category));
                 result.add(new BrokerSubscribersGraph(mBeanServer, objectName, brokerName, category));
+                result.add(new BrokerMessageCountersGraph(mBeanServer, objectName, brokerName, category));
             }
         } catch (MalformedObjectNameException e) {
             throw new RuntimeException(e);
