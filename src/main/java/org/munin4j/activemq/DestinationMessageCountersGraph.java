@@ -32,7 +32,7 @@ import javax.management.ObjectName;
 public class DestinationMessageCountersGraph extends ResetSafeCounterMBeanGraph {
 
     public DestinationMessageCountersGraph(MBeanServer mBeanServer, ObjectName objectName, String brokerName, String destinationName, String category) {
-        super(mBeanServer, objectName, brokerName + " " + destinationName + " Counters", "messages", category);
+        super(mBeanServer, objectName, brokerName + " " + destinationName + " Counters", "messages/s", category);
         add("EnqueueCount", "Enqueued");
         add("DequeueCount", "Dequeued");
         add("DispatchCount", "Dispatched");
