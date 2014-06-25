@@ -49,7 +49,7 @@ public class DestinationMemoryGraph extends SimpleMBeanGraph {
                 .info("The amount of the memory limit used")
                 .type(FieldType.GAUGE)
                 .build();
-        if (objectName.getKeyProperty("Type").equals("Queue")) {
+        if (objectName.getKeyProperty("destinationType").equals("Queue")) {
             // CursorMemoryUsage
             cursorMemoryUsage = new FieldConfigBuilder(GraphUtil.buildName("CursorMemoryUsage"))
                     .label("Cursor Usage")

@@ -29,10 +29,9 @@ import org.munin4j.core.GraphFinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
+import javax.management.*;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
 
@@ -50,10 +49,21 @@ public class BrokerGraphFinder implements GraphFinder {
     public List<Graph> find() {
         List<Graph> result = new ArrayList<Graph>();
         try {
-            Set<ObjectName> objectNames = mBeanServer.queryNames(new ObjectName("org.apache.activemq:Type=Broker,*"), null);
-            log.debug("Found {}",objectNames);
+            Set<ObjectName> objectNames = mBeanServer.queryNames(new ObjectName("org.apache.activemq:type=Broker,*"), new QueryExp() {
+                @Override
+                public boolean apply(ObjectName name) throws BadStringOperationException, BadBinaryOpValueExpException, BadAttributeValueExpException, InvalidApplicationException {
+                    Hashtable<String, String> keyPropertyList = name.getKeyPropertyList();
+                    Set<String> keySet = keyPropertyList.keySet();
+                    return ((keySet.size() == 2) && keySet.contains("type") && keySet.contains("brokerName"));
+                }
+
+                @Override
+                public void setMBeanServer(MBeanServer s) {
+                }
+            });
+            log.debug("Found {}", objectNames);
             for (ObjectName objectName : objectNames) {
-                String brokerName = objectName.getKeyProperty("BrokerName");
+                String brokerName = objectName.getKeyProperty("brokerName");
                 String category = "ActiveMQ " + brokerName + " Broker";
                 result.add(new BrokerMessageStoresLimitGraph(mBeanServer, objectName, brokerName, category));
                 result.add(new BrokerMessageStoresUsageGraph(mBeanServer, objectName, brokerName, category));

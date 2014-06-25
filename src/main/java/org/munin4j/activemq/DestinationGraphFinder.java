@@ -29,10 +29,9 @@ import org.munin4j.core.GraphFinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
+import javax.management.*;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
 
@@ -72,12 +71,22 @@ public class DestinationGraphFinder implements GraphFinder {
     public List<Graph> find() {
         List<Graph> result = new ArrayList<Graph>();
         try {
-            Set<ObjectName> objectNames = mBeanServer.queryNames(new ObjectName("org.apache.activemq:Type=" + type + ",*"), null);
+            Set<ObjectName> objectNames = mBeanServer.queryNames(new ObjectName("org.apache.activemq:type=Broker,destinationType=" + type + ",*"), new QueryExp() {
+                @Override
+                public boolean apply(ObjectName name) throws BadStringOperationException, BadBinaryOpValueExpException, BadAttributeValueExpException, InvalidApplicationException {
+                    String mbeanName = name.toString();
+                    return !(mbeanName.contains("endpoint") || mbeanName.contains("clientId"));
+                }
+
+                @Override
+                public void setMBeanServer(MBeanServer s) {
+                }
+            });
             log.debug("Found {}", objectNames);
             for (ObjectName objectName : objectNames) {
-                String destinationName = objectName.getKeyProperty("Destination");
+                String destinationName = objectName.getKeyProperty("destinationName");
                 if (shouldBeMonitored(destinationName)) {
-                    String brokerName = objectName.getKeyProperty("BrokerName");
+                    String brokerName = objectName.getKeyProperty("brokerName");
                     String category = "ActiveMQ " + brokerName + " " + type + "s";
                     result.add(new DestinationMessageCountersGraph(mBeanServer, objectName, brokerName, destinationName, category));
                     result.add(new DestinationSizeGraph(mBeanServer, objectName, brokerName, destinationName, category));
