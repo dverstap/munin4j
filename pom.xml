@@ -1,11 +1,14 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.munin4j</groupId>
     <artifactId>munin4j</artifactId>
     <packaging>jar</packaging>
     <version>0.7-SNAPSHOT</version>
-    <name>munin4j</name>
+    <name>${project.groupId}:${project.artifactId}</name>
+    <url>https://github.com/dverstap/munin4j</url>
+    <description>Munin Monitoring agent that can be embedded in a Java application.</description>
 
     <licenses>
         <license>
@@ -22,12 +25,23 @@
     </scm>
 
     <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
         <repository>
-            <id>dverstap-github-releases</id>
-            <name>Davy Verstappen's release maven repository at github.com</name>
-            <url>https://github.com/dverstap/maven-repo/maven2/releases</url>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
     </distributionManagement>
+
+    <developers>
+        <developer>
+            <name>Davy Verstappen</name>
+            <email>davy@wintersleep.org</email>
+            <url>https://github.com/dverstap</url>
+        </developer>
+    </developers>
 
     <dependencies>
 
@@ -112,21 +126,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <version>2.5</version>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>2.1</version>
-                <configuration>
-                    <arguments>-DaltDeploymentRepository="${munin4jAltDeploymentRepository}"</arguments>
-                </configuration>
             </plugin>
 
         </plugins>
